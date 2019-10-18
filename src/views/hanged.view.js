@@ -18,4 +18,6 @@ class HangedView {
       panelLetters: document.getElementById('panelLetters')
     };
   };
+
+  loadWord = () => {};
 }
