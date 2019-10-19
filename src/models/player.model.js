@@ -1,7 +1,7 @@
 class Player {
-    constructor(_name, _life, _successes) {
-        this.name = _name;
-        this.life = _life;
-        this._successes = _successes
-    }
+  constructor(_name) {
+    this.name = _name;
+    this.lives = 10;
+    this.corrects = 0;
+  }
 }
