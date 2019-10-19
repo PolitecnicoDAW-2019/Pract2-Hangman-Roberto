@@ -1,6 +1,2 @@
-const hangedView = new Promise((resolve, reject) => {
-    resolve(new HangedView());
-})
-
-
-const app = new HangedController(new HangedView());
+const hangmanView = new HangmanView();
+hangmanView.init().then(response => (app = new HangmanController(hangmanView)));

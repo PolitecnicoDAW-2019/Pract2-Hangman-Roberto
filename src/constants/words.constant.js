@@ -1,1 +1,1 @@
-const words = ['españa', 'tonto'];
+const words = ['españa', 'tonto', 'medusa', 'router', 'cabeza'];
