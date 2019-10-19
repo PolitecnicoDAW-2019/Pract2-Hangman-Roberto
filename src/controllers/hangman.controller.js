@@ -7,4 +7,6 @@ class HangmanController {
   }
 
   getNewWord = () => (this.word = words[Math.floor(Math.random() * words.length)]);
+
+  checkLetterInWord = event => Array.from(this.word).includes(event);
 }
