@@ -8,16 +8,16 @@ class HangmanView {
         .then(html => {
           const hangmanViewHTML = new DOMParser().parseFromString(html, 'text/html');
           document.getElementById('root').innerHTML = hangmanViewHTML.body.innerHTML;
-        })
-        .then(() => {
           this.DOM = this.cacheDOM();
           LETTERS.forEach(element => {
             const button = document.createElement('button');
             button.innerHTML = element;
             this.DOM.lettersButton[element.toLowerCase()] = button;
-            document.getElementById('panelLetters').appendChild(button);
+            this.DOM.panelLetters.appendChild(button);
           });
           this.context = this.DOM.canvas.getContext('2d');
+          this.context.font = '100px monospace';
+          this.context.textAlign = 'center';
           resolve('View Loaded.');
         });
     });
@@ -28,27 +28,79 @@ class HangmanView {
       canvas: document.getElementById('myCanvas'),
       panelLetters: document.getElementById('panelLetters'),
       playAgainButton: document.getElementById('playAgainButton'),
+      winStreak: document.getElementById('winStreak'),
       lettersButton: {}
     };
   };
 
-  bindPlayAgainButton = handler => this.DOM.playAgainButton.addEventListener('click', handler);
+  bindPlayAgainButton = handler =>
+    this.DOM.playAgainButton.addEventListener('click', event => {
+      this.clearCanvas();
+      this.turnOnLettersButtons(true);
+      handler();
+    });
+
+  clearCanvas = () => {
+    const previousColor = this.context.fillStyle;
+    this.context.fillStyle = 'white';
+    this.context.fillRect(0, 0, this.DOM.canvas.width, this.DOM.canvas.height);
+    this.context.fillStyle = previousColor;
+  };
 
   bindClickEventToLettersButton = handler => Object.values(this.DOM.lettersButton).forEach(element => element.addEventListener('click', event => this.myfunction(event, handler)));
   bindKeyUpEventToLettersButton = handler => document.body.addEventListener('keyup', event => this.myfunction(event, handler));
 
-  xd = () => this.DOM.canvas.addEventListener('click', event => console.log(`x: ${event.offsetX}, y: ${event.offsetY}`));
+  getLetterFromEvent = event => {
+    if (event.type === 'keyup') {
+      if (event.keyCode >= 65 && event.keyCode <= 90) {
+        return event.key.toLowerCase();
+      }
+      return null;
+    }
+    return event.target.innerHTML.toLowerCase();
+  };
 
   myfunction = (event, handler) => {
+    const letter = this.getLetterFromEvent(event);
     const result = handler(event);
-    if (result && result != 'xdparte2') {
-      //no ze pinta
-      console.log('no se pinta');
+    if (result && result != null) {
+      this.word.updateProgress(letter);
+      this.paintWord(this.word.progress);
+      if (this.word.checkIfFinished()) {
+        this.playerWin();
+      }
     } else if (!result && result != null) {
-      console.log('se pinta');
-      this.paintHangman(this.lives());
-      //ze pinta, y te robo una bia
+      const livesLeft = this.lives();
+      if (livesLeft === 0) {
+        this.playerLoose();
+      }
+      this.paintHangman(livesLeft);
     }
+  };
+
+  playerWin = () => {
+    this.context.fillText('You win!', 800, 90);
+    this.turnOnLettersButtons(false);
+    this.updateWinStreak(true);
+    setTimeout(() => this.DOM.playAgainButton.click(), 5000);
+  };
+
+  updateWinStreak = correct => (this.DOM.winStreak.innerHTML = `Win Streak: <br> <center>${this.getWinStreak(correct)}</center>`);
+
+  playerLoose = () => {
+    this.context.fillText('You loose!', 800, 90);
+    this.word.progress = this.word.word.split('');
+    this.paintWord(this.word.progress);
+    this.updateWinStreak(false);
+    this.turnOnLettersButtons(false);
+  };
+
+  turnOnLettersButtons = on => {
+    Object.values(this.DOM.lettersButton).forEach(element => (element.disabled = !on));
+  };
+
+  paintWord = wordArray => {
+    this.context.fillText(wordArray.join(' '), 500, 634);
   };
 
   paintHangman = livesLeft => {
@@ -65,10 +117,8 @@ class HangmanView {
       9: { start: { x: 50, y: 500 }, end: { x: 200, y: 500 } }
     };
 
-    console.log(`Lives: ${livesLeft}`);
-
     if (livesLeft != 5) {
-      this.paint(paint[livesLeft]);
+      this.paintLine(paint[livesLeft]);
     } else {
       this.context.beginPath();
       this.context.arc(400, 200, 40, 0, 2 * Math.PI, false);
@@ -77,7 +127,7 @@ class HangmanView {
     }
   };
 
-  paint = coordinates => {
+  paintLine = coordinates => {
     this.context.beginPath();
     this.context.moveTo(coordinates.start.x, coordinates.start.y);
     this.context.lineTo(coordinates.end.x, coordinates.end.y);

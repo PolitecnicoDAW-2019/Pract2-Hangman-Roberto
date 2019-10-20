@@ -3,45 +3,47 @@ class HangmanController {
     this.view = _view;
     this.service = _service;
 
-    this.playAgainButton();
-    this.player = new Player('Roberto');
-    this.alreadyPressedLetters = [];
-    this.view.lives = this.handlerControlLive;
+    this.service.readWordJson('/src/data/words.json').then(json => {
+      this.jsonFile = json;
+      this.word = new Word(this.service.getNewWord(this.jsonFile));
+      this.view.word = this.word;
+      this.view.paintWord(this.word.progress);
+      this.player = new Player('Roberto');
 
-    this.view.bindPlayAgainButton(this.playAgainButton);
-    this.view.bindClickEventToLettersButton(this.handleCheckLetter);
-    this.view.bindKeyUpEventToLettersButton(this.handleCheckLetter);
+      this.view.lives = this.handlerControlLive;
+      this.view.getWinStreak = this.handlerWinStreak;
 
-    this.view.xd();
+      this.view.bindPlayAgainButton(this.playAgainButton);
+      this.view.bindClickEventToLettersButton(this.handleCheckLetter);
+      this.view.bindKeyUpEventToLettersButton(this.handleCheckLetter);
+    });
   }
 
+  /*
+  TODO LIST
+  - If player died, don't allow him to press keys
+  - Refactor and improve code
+  */
+
   playAgainButton = () => {
-    this.getNewWord();
-  };
-
-  getNewWord = () => (this.word = words[Math.floor(Math.random() * words.length)]);
-
-  getLetterFromEvent = event => {
-    if (event.type === 'keyup') {
-      if (event.keyCode >= 65 && event.keyCode <= 90) {
-        return event.key.toLowerCase();
-      }
-      return 'xd';
-    }
-    return event.target.innerHTML.toLowerCase();
+    this.word = new Word(this.service.getNewWord(this.jsonFile));
+    this.view.word = this.word;
+    this.view.paintWord(this.word.progress);
+    this.player.lives = 10;
+    this.player.lettersHistory = [];
   };
 
   handleCheckLetter = event => {
-    const letter = this.getLetterFromEvent(event);
-    if (letter != 'xd' && !this.alreadyPressedLetters.includes(letter)) {
-      this.alreadyPressedLetters.push(letter);
+    const letter = this.view.getLetterFromEvent(event);
+    if (letter != null && !this.player.lettersHistory.includes(letter)) {
+      this.player.lettersHistory.push(letter);
       this.view.DOM.lettersButton[letter].disabled = true;
-      return this.service.checkLetterInWord(letter, this.word);
+      return this.service.checkLetterInWord(letter, this.word.word);
     }
-    return 'xdparte2';
+    alert(`You already pressed the letter ${letter.toUpperCase()}!`); //TODO Improve this
+    return null;
   };
 
   handlerControlLive = () => (this.player.lives = this.service.controlLive(this.player.lives));
-
-  loadJSON = () => {};
+  handlerWinStreak = correct => (this.player.winStreak = this.service.controlWinStreak(this.player.winStreak, correct));
 }
