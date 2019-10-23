@@ -2,25 +2,22 @@ class HangmanView {
   constructor() {}
 
   init = () => {
-    return new Promise(resolve => {
-      fetch('/src/views/hangman.view.html')
-        .then(response => response.text())
-        .then(html => {
-          const hangmanViewHTML = new DOMParser().parseFromString(html, 'text/html');
-          document.getElementById('root').innerHTML = hangmanViewHTML.body.innerHTML;
-          this.DOM = this.cacheDOM();
-          LETTERS.forEach(element => {
-            const button = document.createElement('button');
-            button.innerHTML = element;
-            this.DOM.lettersButton[element.toLowerCase()] = button;
-            this.DOM.panelLetters.appendChild(button);
-          });
-          this.context = this.DOM.canvas.getContext('2d');
-          this.context.font = '100px monospace';
-          this.context.textAlign = 'center';
-          resolve('View Loaded.');
+    return fetch('/src/views/hangman.view.html')
+      .then(response => response.text())
+      .then(html => {
+        const hangmanViewHTML = new DOMParser().parseFromString(html, 'text/html');
+        document.getElementById('root').innerHTML = hangmanViewHTML.body.innerHTML;
+        this.DOM = this.cacheDOM();
+        LETTERS.forEach(element => {
+          const button = document.createElement('button');
+          button.innerHTML = element;
+          this.DOM.lettersButton[element.toLowerCase()] = button;
+          this.DOM.panelLetters.appendChild(button);
         });
-    });
+        this.context = this.DOM.canvas.getContext('2d');
+        this.context.font = '100px monospace';
+        this.context.textAlign = 'center';
+      });
   };
 
   cacheDOM = () => {
