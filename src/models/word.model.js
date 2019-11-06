@@ -6,11 +6,6 @@ class Word {
 
   checkIfFinished = () => this.word === this.progress.join('');
   updateProgress = letter => {
-    this.progress = this.progress.map((current, index) => {
-      if (this.word.substring(index, index + 1) === letter) {
-        return letter;
-      }
-      return current;
-    });
+    this.progress = this.progress.map((current, index) => (this.word.substring(index, index + 1) === letter ? letter : current));
   };
 }
