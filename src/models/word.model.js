@@ -1,7 +1,7 @@
 class Word {
   constructor(string) {
     this.word = string;
-    this.progress = new Array(string.length).fill('_', 0, string.length);
+    this.progress = new Array(string.length).fill('_');
   }
 
   checkIfFinished = () => this.word === this.progress.join('');
