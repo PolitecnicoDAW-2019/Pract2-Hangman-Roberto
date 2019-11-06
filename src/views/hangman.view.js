@@ -44,8 +44,8 @@ class HangmanView {
     this.context.fillStyle = previousColor;
   };
 
-  bindClickEventToLettersButton = handler => Object.values(this.DOM.lettersButton).forEach(element => element.addEventListener('click', event => this.myfunction(event, handler)));
-  bindKeyUpEventToLettersButton = handler => document.body.addEventListener('keyup', event => this.myfunction(event, handler));
+  bindClickEventToLettersButton = handler => Object.values(this.DOM.lettersButton).forEach(element => element.addEventListener('click', event => this.checkUserEvent(event, handler)));
+  bindKeyUpEventToLettersButton = handler => document.body.addEventListener('keyup', event => this.checkUserEvent(event, handler));
 
   getLetterFromEvent = event => {
     if (event.type === 'keyup') {
@@ -57,7 +57,7 @@ class HangmanView {
     return event.target.innerHTML.toLowerCase();
   };
 
-  myfunction = (event, handler) => {
+  checkUserEvent = (event, handler) => {
     const letter = this.getLetterFromEvent(event);
     const result = handler(event);
     if (result && result != null) {
